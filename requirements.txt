@@ -1,0 +1,49 @@
+# Core environment
+python-dotenv
+fastapi
+uvicorn
+uv
+
+# LangChain and vector store
+langchain
+langchain-community
+langchain-openai
+langchain-huggingface
+chromadb
+
+# Embeddings and LLM
+openai
+langchain-openai
+transformers
+sentence-transformers
+
+# PDF Loader & Processing
+PyMuPDF
+PyPDF2
+reportlab
+
+# Claude function calling (via your MCP server)
+mcp 
+
+# HTTP requests & async
+requests
+aiohttp
+
+# NLP and ML
+numpy==1.24.4
+scikit-learn
+joblib
+rapidfuzz
+pandas
+
+# Web automation & scraping
+playwright
+beautifulsoup4
+
+# Image & visualization
+Pillow
+
+# Template rendering
+jinja2
+
+# Email handling (MIME already in stdlib, but keeping smtplib deps safe)
