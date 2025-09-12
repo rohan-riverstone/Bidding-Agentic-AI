@@ -60,11 +60,6 @@ def find_target_block(prompt, candidates, threshold=50):
         return best_block
     return None
 
-def locate_target_block(soup, prompt):
-    candidates = extract_candidate_blocks(soup)
-    return find_target_block(prompt, candidates)
-
-
 def save_updated_html(rfp_id, html_content):
     proposal_temp_path = os.path.join(tempfile.gettempdir(), "proposal.html")
     with open(proposal_temp_path, "w", encoding="utf-8") as f:
@@ -136,55 +131,6 @@ def detect_action(prompt: str) -> str:
         return "update"
     return "update"
 
-def extract_add_text(prompt: str) -> str:
-    # prefer quoted text
-    q = re.search(r'["\'](.+?)["\']', prompt)
-    if q:
-        return q.group(1).strip()
-    # common add patterns: "add X", "append X"
-    m = re.search(r'(?:add|append)\s+(?:an?|another|the)?\s*(.+)$', prompt, re.IGNORECASE)
-    if m:
-        return m.group(1).strip()
-    # fallback: last 6 words
-    parts = prompt.split()
-    return " ".join(parts[-6:]).strip()
-
-def extract_remove_text(prompt: str) -> str:
-    q = re.search(r'["\'](.+?)["\']', prompt)
-    if q:
-        return q.group(1).strip()
-    m = re.search(r'(?:remove|delete)\s+(?:the\s+)?(.+)$', prompt, re.IGNORECASE)
-    if m:
-        return m.group(1).strip()
-    parts = prompt.split()
-    return " ".join(parts[-6:]).strip()
-
-def extract_update_texts(prompt: str):
-    # try "change X to Y" / "update X to Y" / "replace X with Y"
-    m = re.search(r'(?:change|update|replace)\s+(.+?)\s+(?:to|as|with|=)\s+[\'"]?(.+?)[\'"]?$', prompt, re.IGNORECASE)
-    if m:
-        return m.group(1).strip(), m.group(2).strip()
-    # fallback: if quoted two groups: "old" -> "new"
-    qs = re.findall(r'["\'](.+?)["\']', prompt)
-    if len(qs) >= 2:
-        return qs[0].strip(), qs[1].strip()
-    return None, None
-
-def find_best_li(list_tag: Tag, target_text: str, threshold: int = 55):
-    """
-    Returns (li_tag, score) for best matching <li> inside list_tag.
-    """
-    best_score = 0
-    best_li = None
-    for li in list_tag.find_all('li', recursive=False):
-        txt = li.get_text(" ", strip=True)
-        score = fuzz.partial_ratio(txt.lower(), target_text.lower())
-        if score > best_score:
-            best_score = score
-            best_li = li
-    if best_score >= threshold:
-        return best_li, best_score
-    return None, best_score
 def get_edit_target(tag: Tag) -> Tag:
     """
     Expand the matched element into the right editable block.
@@ -299,18 +245,6 @@ def extract_sections(soup):
         if nxt:
             sections.append({"heading": heading_text, "content": nxt, "html": str(nxt)})
     return sections
-
-def locate_section(prompt, soup):
-    sections = extract_sections(soup)
-    best_score, best_section = 0, None
-    for sec in sections:
-        score = fuzz.partial_ratio(prompt.lower(), sec["heading"].lower())
-        if score > best_score:
-            best_score, best_section = score, sec
-    if best_section and best_score > 60:
-        return best_section["content"]  # return block under heading
-    return None
-
 
 @mcp.tool(description="""after creating proposal when user ask to make chaneges in the proposal call this tool with rfp_id and user query
         user_queries is a list of strings containing the changes to be made in the proposal""")
@@ -449,9 +383,5 @@ if __name__ == "__main__":
         import asyncio
         print("✅ Starting MCP Server...", file=sys.stderr)
         mcp.run()
-        # print(make_changes_in_proposal(rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735', user_query = 'change the authorization level of Manufacturer 1 to Basic'))
-        # result = asyncio.run(display_proposal(rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735'))
-        # print(result)
-        # print(make_changes_in_proposal(rfp_id= '474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',user_queries= ['change the quantity of Reception Coffee Table to 2 in Furniture Pricing Summary',]))
     except Exception as ex:
         print(f"❌ MCP Server failed: {str(ex)}", file=sys.stderr)
