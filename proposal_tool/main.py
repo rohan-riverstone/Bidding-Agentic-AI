@@ -241,107 +241,207 @@ def get_edit_target(tag: Tag) -> Tag:
     # default: return tag itself
     return tag
 
+def locate_section_block(prompt: str, soup: BeautifulSoup, fuzz_threshold: int = 55) -> Tag | None:
+    """
+    Locate the container block (div/section/article) in HTML that best matches
+    the user's prompt. Works for ANY section (not hard-coded keywords).
+
+    Args:
+        prompt: Natural language query
+        soup: BeautifulSoup object of the HTML
+        fuzz_threshold: minimum fuzzy score to accept a heading match
+
+    Returns:
+        BeautifulSoup Tag (div/section/article/etc.) or None
+    """
+    p = (prompt or "").lower()
+
+    # 1) Fuzzy match prompt against headings
+    best_score = 0
+    best_heading = None
+    for heading in soup.find_all(["h1","h2","h3","h4","h5","h6"]):
+        htext = heading.get_text(" ", strip=True).lower()
+        score = fuzz.partial_ratio(p, htext)
+        if score > best_score:
+            best_score = score
+            best_heading = heading
+
+    if best_heading and best_score >= fuzz_threshold:
+        # Climb upward to find the logical container
+        for anc in best_heading.parents:
+            if getattr(anc, "name", None) in ("div", "section", "article", "body"):
+                # Prefer ancestor containing table/ul/ol (structured block)
+                if anc.find(["table","ul","ol"]):
+                    return anc
+                return anc
+        return best_heading
+
+    # 2) If no heading matched, fuzzy match all candidate blocks
+    candidates = extract_candidate_blocks(
+        soup,
+        tags=("div","section","article","tr","p","td","span")
+    )
+    flat_match = find_target_block(prompt, candidates, threshold=fuzz_threshold)
+    if flat_match:
+        return flat_match["tag"]
+
+    return None
+
+
+def extract_sections(soup):
+    sections = []
+    for heading in soup.find_all(["h1","h2","h3","h4","strong","b"]):
+        heading_text = heading.get_text(" ", strip=True)
+        # find next content (list, table, or paragraph)
+        nxt = heading.find_next_sibling()
+        while nxt and (nxt.name is None or nxt.get_text(strip=True) == ""):
+            nxt = nxt.find_next_sibling()
+        if nxt:
+            sections.append({"heading": heading_text, "content": nxt, "html": str(nxt)})
+    return sections
+
+def locate_section(prompt, soup):
+    sections = extract_sections(soup)
+    best_score, best_section = 0, None
+    for sec in sections:
+        score = fuzz.partial_ratio(prompt.lower(), sec["heading"].lower())
+        if score > best_score:
+            best_score, best_section = score, sec
+    if best_section and best_score > 60:
+        return best_section["content"]  # return block under heading
+    return None
+
+
 @mcp.tool(description="""after creating proposal when user ask to make chaneges in the proposal call this tool with rfp_id and user query
         user_queries is a list of strings containing the changes to be made in the proposal""")
 def make_changes_in_proposal(rfp_id: str, user_queries: list) -> str:
     """
-    For each user_query:
-      - locate target block (existing function find_target_block)
-      - expand using get_edit_target(...)
-      - if edit_target is a list (ul/ol) -> perform local action (add/remove/update)
-      - else -> fallback to proposal_change(...) (LLM) like before
+    For each query: locate the whole container block (div/section) for the section named
+    in the prompt, send that block + prompt to LLM, get updated block back, replace it
+    in the original HTML, and print the final HTML at the end.
     """
+    # load current proposal HTML from logs (same as your original)
     result = log._load_logs()[rfp_id]["tools"]["proposal"]["result"]
     html_content = result["updated_proposal_html"]
 
     for user_query in user_queries:
         soup = parse_html(html_content)
-        candidates = extract_candidate_blocks(soup)
-        target = find_target_block(user_query, candidates)
 
-        if not target:
-            print("⚠️ No matching block found for:", user_query)
+        # locate the block Tag (NOT string)
+        edit_target = locate_section_block(user_query, soup)
+
+        if not edit_target:
+            print("⚠️ No matching section block found for:", user_query)
+            # fallback to old behaviour: try find_target_block
+            candidates = extract_candidate_blocks(soup)
+            flat = find_target_block(user_query, candidates)
+            if flat:
+                edit_target = get_edit_target(flat["tag"])
+            else:
+                print("❌ No fallback match either. Skipping.")
+                continue
+
+        # ensure tag
+        if not isinstance(edit_target, Tag):
+            print("⚠️ locate_section_block returned non-Tag. Skipping.")
             continue
 
-        # target is a dict {"text":..., "html":..., "tag": Tag}
-        base_tag = target["tag"]
-        edit_target = get_edit_target(base_tag)  # this returns a Tag
+        # preview
+        preview = edit_target.get_text(" ", strip=True)[:300].replace("\n", " ")
+        print(f"\n🔎 Matched Block (tag: <{edit_target.name}>): {preview}")
 
         action = detect_action(user_query)
 
-        print(f"\n🔎 Matched Block Before Edit (tag: <{getattr(edit_target,'name',type(edit_target))}>):")
-        # print a concise preview
-        preview = edit_target.get_text(" ", strip=True) if isinstance(edit_target, Tag) else str(edit_target)
-        print("Preview text:", preview[:250])
-
-        # If edit_target is a list, do local list operations
-        if isinstance(edit_target, Tag) and edit_target.name in ("ul", "ol"):
-            ul = edit_target
-
-            if action == "add":
-                new_item_text = extract_add_text(user_query)
-                if not new_item_text:
-                    print("⚠️ Could not parse new list item from query:", user_query)
-                else:
-                    new_li = soup.new_tag("li")
-                    new_li.string = new_item_text
-                    ul.append(new_li)
-                    print(f"➕ Added list item: '{new_item_text}'")
-
-            elif action == "remove":
-                target_text = extract_remove_text(user_query)
-                # try to find best li match
-                li_tag, score = find_best_li(ul, target_text)
-                if li_tag:
-                    removed_text = li_tag.get_text(" ", strip=True)
-                    li_tag.decompose()
-                    print(f"➖ Removed list item (score={score}): '{removed_text}'")
-                else:
-                    print("⚠️ No matching list item found to remove for:", target_text)
-
-            elif action == "update":
-                old_text, new_text = extract_update_texts(user_query)
-                if old_text and new_text:
-                    # find old li
-                    li_tag, score = find_best_li(ul, old_text)
-                    if li_tag:
-                        li_tag.string.replace_with(new_text)
-                        print(f"✏️ Updated list item (score={score}): '{old_text}' -> '{new_text}'")
-                    else:
-                        # fallback: try to match old_text with fuzzy against li's or, if old_text not present,
-                        # maybe user intended to append new item instead of update
-                        print("⚠️ Could not find existing list item to update for:", old_text)
-                else:
-                    # no explicit "old -> new" found: try to match any li in prompt and replace with remainder
-                    # e.g., "update BIFMA Certified to BIFMA Gold" already handled above; otherwise skip.
-                    print("⚠️ Could not parse update pair from query:", user_query)
-            else:
-                print("⚠️ Unknown action for list:", action)
-
-            # After local modification, update html_content and continue to next query
-            html_content = str(soup)
-
-        else:
-            # Non-list case: fallback to proposal_change (LLM) if available
-            try:
-                updated_html = proposal_change(user_query, str(edit_target), action)
-                new_block = BeautifulSoup(updated_html, "html.parser")
-                # replace edit_target in the original soup
-                edit_target.replace_with(new_block)
-                html_content = str(soup)
-                print("🔄 Performed LLM-based update for non-list element.")
-            except Exception as e:
-                print("❌ proposal_change failed; error:", e)
+        # send the block + query to the LLM handler
+        try:
+            block_html = str(edit_target)
+            updated_html = proposal_change(user_query, block_html, action)  # your LLM function
+            if not updated_html:
+                print("⚠️ LLM returned empty response for query:", user_query)
                 continue
+
+            # Parse LLM result and decide how to replace
+            new_doc = BeautifulSoup(updated_html, "html.parser")
+
+            # find first non-empty tag in the returned result
+            first_tag = None
+            for node in new_doc.contents:
+                if isinstance(node, Tag):
+                    first_tag = node
+                    break
+                # if text node with content, keep as fallback
+                if isinstance(node, NavigableString) and node.strip():
+                    # wrap text later
+                    break
+
+            # Replacement logic:
+            # If first_tag exists and matches edit_target tag -> replace
+            if first_tag and getattr(first_tag, "name", None) == edit_target.name:
+                # create a replacement tag parsed by the original soup to avoid cross-soup issues
+                replacement = BeautifulSoup(str(first_tag), "html.parser").find(True)
+                edit_target.replace_with(replacement)
+
+            else:
+                # If the original block contains a table and LLM returned a table/tbody/tr rows
+                orig_table = edit_target.find("table")
+                # search for table/tbody/tr in new_doc
+                new_table = new_doc.find("table")
+                new_tbody = new_doc.find("tbody")
+                new_trs = new_doc.find_all("tr")
+
+                if orig_table and (new_table or new_tbody or new_trs):
+                    if new_table:
+                        replacement_table = BeautifulSoup(str(new_table), "html.parser").find("table")
+                        orig_table.replace_with(replacement_table)
+                    elif new_tbody:
+                        replacement_tbody = BeautifulSoup(str(new_tbody), "html.parser").find("tbody")
+                        existing_tbody = orig_table.find("tbody")
+                        if existing_tbody:
+                            existing_tbody.replace_with(replacement_tbody)
+                        else:
+                            orig_table.append(replacement_tbody)
+                    elif new_trs:
+                        # append each returned <tr> into existing table's tbody or table
+                        tbody = orig_table.find("tbody") or orig_table
+                        for tr in new_trs:
+                            # ensure we insert soup-created tags to avoid cross-soup problems
+                            replacement_row = BeautifulSoup(str(tr), "html.parser").find("tr")
+                            tbody.append(replacement_row)
+                    else:
+                        # fallback: replace the whole block
+                        replacement = BeautifulSoup(str(new_doc), "html.parser")
+                        edit_target.replace_with(replacement)
+                else:
+                    # final fallback: if LLM returned several nodes, wrap them and replace the whole block
+                    # or if only text - replace content
+                    # build wrapper from the returned HTML and replace
+                    replacement_wrapper = BeautifulSoup(str(new_doc), "html.parser")
+                    # if replacement_wrapper has a top-level tag, use that
+                    top_tag = replacement_wrapper.find(True)
+                    if top_tag:
+                        edit_target.replace_with(top_tag)
+                    else:
+                        # plain text - set the inner text of the edit_target
+                        edit_target.string = updated_html
+
+            # write changes back to html_content for next iteration
+            html_content = str(soup)
+            print("🔄 LLM update applied successfully for query:", user_query)
+
+        except Exception as e:
+            print("❌ proposal_change / replacement failed; error:", e)
+            continue
 
     # Save back to logs after all edits
     result["updated_proposal_html"] = html_content
     log.log_proposal(rfp_id=rfp_id, result=result)
 
-    # Save updated HTML to disk (display file)
+    # Save file for preview and printing (your existing helper)
     save_updated_html(rfp_id, html_content)
 
-    return "Changes made successfully."
+    # Print the full updated HTML (as you requested)
+
+    return "finished"
     
 # ===== START SERVER =====
 if __name__ == "__main__":
@@ -352,9 +452,6 @@ if __name__ == "__main__":
         # print(make_changes_in_proposal(rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735', user_query = 'change the authorization level of Manufacturer 1 to Basic'))
         # result = asyncio.run(display_proposal(rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735'))
         # print(result)
-#         print(make_changes_in_proposal(rfp_id= '474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',user_queries= [
-#     'change the Shipment Charges to $ 1500.00',
-#     "add one more Additional Services Provided by Dealer: 'On-site training for staff'"
-#   ]))
+        # print(make_changes_in_proposal(rfp_id= '474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',user_queries= ['change the quantity of Reception Coffee Table to 2 in Furniture Pricing Summary',]))
     except Exception as ex:
         print(f"❌ MCP Server failed: {str(ex)}", file=sys.stderr)

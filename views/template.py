@@ -1099,31 +1099,33 @@ def render_proposal(progress: dict,today,basic) -> str:
     </div>
 
     <div class="contact-info">
+    <div>
         <strong>Submitted to:</strong><br>
         {{basic["Client Information"]["company name"]}}<br>
         {{basic['Client Information']['Address'].replace(',','<br>')}}<br>
         Attention: {{basic["Client Information"]["Name"]}}, Procurement Officer<br><br>
-
-        <strong>Project:</strong> {{basic["Client Information"]["Company"]}}<br><br>
-
+    </div>
+        <div><strong>Project:</strong> {{basic["Client Information"]["Company"]}}</div><br>
+    <div>
         <strong>Submitted by:</strong><br>
         <span class="bracketed">{{basic["Dealer Information"]["company"]}}</span><br>
         <span class="bracketed">{{basic["Dealer Information"]["address"].replace(',','<br>')}}</span><br>
         <span class="bracketed">{{basic["Dealer Information"]["phone"]}}</span> | <span class="bracketed">{{basic["Dealer Information"]["email"]}}</span><br>
         Project Manager: <span class="bracketed">{{basic["Dealer Information"]["name"]}}, {{basic["Dealer Information"]["email"]}}</span><br><br>
-
-        <strong>Date of Submission:</strong> <span class="bracketed">{{today}}</span><br>
-        <strong>Proposal Valid Until:</strong> <span class="bracketed">{{basic["Quotation Details"]["Due Date"]}}</span><br><br>
-
+    </div>
+        <div><strong>Date of Submission:</strong> <span class="bracketed">{{today}}</span></div>
+        <div><strong>Proposal Valid Until:</strong> <span class="bracketed">{{basic["Quotation Details"]["Due Date"]}}</span></div><br>
+    <div>
         <strong>Authorized Signature:</strong><br>
         <span class="bracketed">{{basic["Dealer Information"]["name"]}}</span><br>
         <span class="bracketed">{{today}}</span>
+    </div>
     </div>
 
     <div class="section">
         <h2 class="section-title">DEALER INFORMATION</h2>
 
-        <div class="subsection-title">Primary Dealer Details</div>
+        <div><div class="subsection-title">Primary Dealer Details</div>
         <table class="info-table">
             <tr>
                 <th>Field</th>
@@ -1158,8 +1160,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td>{{basic["Dealer Information"]["post"]}}</td>
             </tr>
         </table>
+        </div>
 
-        <div class="subsection-title">Charges Covered by Dealer</div>
+        <div><div class="subsection-title">Charges Covered by Dealer</div>
         <table class="info-table">
             <tr>
                 <th>Service Type</th>
@@ -1197,8 +1200,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td><span class="price-placeholder">$ 0</span></td>
             </tr>
         </table>
+        </div>
 
-        <div class="subsection-title">Additional Services Provided by Dealer</div>
+        <div><div class="subsection-title">Additional Services Provided by Dealer</div>
         <ul>
             <li>Pre-delivery inspection and quality control</li>
             <li>Site survey and space planning assistance</li>
@@ -1207,8 +1211,8 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li>Furniture reconfiguration services</li>
             <li>Maintenance and repair services</li>
         </ul>
-
-        <div class="subsection-title">Dealer Authorization & Certifications</div>
+        </div>
+        <div><div class="subsection-title">Dealer Authorization & Certifications</div>
         <table class="info-table">
             <tr>
                 <th>Category</th>
@@ -1228,8 +1232,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                     specify items maintained in stock: [List items]</td>
             </tr>
         </table>
+        </div>
 
-        <div class="subsection-title">Manufacturer Authorizations</div>
+        <div><div class="subsection-title">Manufacturer Authorizations</div>
         <table class="info-table">
             <tr>
                 <th>Manufacturer</th>
@@ -1248,16 +1253,18 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td>[Premium/Standard/Basic]</td>
             </tr>
         </table>
+        </div>
 
-        <div class="subsection-title">Dealer Certifications</div>
+        <div><div class="subsection-title">Dealer Certifications</div>
         <ul>
             <li>Certified Installation Team</li>
             <li>BIFMA Certified</li>
             <li>OSHA Safety Certified</li>
             <li>Other relevant certifications: [List]</li>
         </ul>
+        </div>
 
-        <div class="subsection-title">Contact Information for Project Coordination</div>
+        <div><div class="subsection-title">Contact Information for Project Coordination</div>
         <table class="info-table">
             <tr>
                 <th>Primary Contact</th>
@@ -1272,6 +1279,7 @@ def render_proposal(progress: dict,today,basic) -> str:
                 
             </tr>
         </table>
+        </div>
     </div>
 
     <div class="section">
@@ -1295,18 +1303,19 @@ def render_proposal(progress: dict,today,basic) -> str:
     <div class="section">
         <h2>1. EXECUTIVE SUMMARY</h2>
 
-        <h3>Project Understanding</h3>
+        <div><h3>Project Understanding</h3>
         <p>We understand that IOM Washington DC requires furniture procurement for two family center locations with a
             firm delivery deadline of {{basic['Quotation Details']['Due Date']}}. Our proposal addresses {{basic["furniture_items_and_pricing"]|length}} furniture items specified across
             the {{basic['Client Information']['Company']}}.</p>
-
-        <h3>Company Overview</h3>
+        </div>
+        <div><h3>Company Overview</h3>
         {% for code,ent_data in progress.items() %}
         <h4> {{ent_data["Enterprise Information"]["name"]}}</h4>
 
         <p>{{ent_data["Enterprise Information"]["description"]}}</p>
         {% endfor %}
-        <h3>Key Commitments</h3>
+        </div>
+        <div><h3>Key Commitments</h3>
         <ul>
             <li><strong>On-Time Delivery:</strong> Guaranteed completion by {{basic['Quotation Details']['Due Date']}}</li>
             <li><strong>Quality Assurance:</strong> All Grade A contract furniture meeting specifications</li>
@@ -1315,8 +1324,9 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>Local Support:</strong> <span class="bracketed">[Location]</span> service team for ongoing
                 support</li>
         </ul>
+        </div>
 
-        <h3>Total Project Investment</h3>
+        <div><h3>Total Project Investment</h3>
         <table class="pricing-table">
             <tr>
                 <td>Furniture Subtotal:</td>
@@ -1339,20 +1349,22 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td><span class="bracketed">$ 0</span></td>
             </tr>
         </table>
+        </div>
         <p><em>Tax-exempt for IOM</em></p>
 
-        <h3>Primary Partners</h3>
+        <div><h3>Primary Partners</h3>
         <ul>
             <li>Project Manager: <span class="bracketed">[Name, Credentials]</span></li>
             <li>Installation Supervisor: <span class="bracketed">[Name]</span></li>
             <li>Quality Control Manager: <span class="bracketed">[Name]</span></li>
         </ul>
+        </div>
     </div>
 
     <div class="section">
         <h2>2. COMPANY QUALIFICATIONS</h2>
 
-        <h3>Company Information</h3>
+        <div><h3>Company Information</h3>
         <ul>
             <li><strong>Company Name:</strong> <span class="bracketed">{{basic["Dealer Information"]["company"]}}</span></li>
             <li><strong>Years in Business:</strong> <span class="bracketed">[X]</span> years</li>
@@ -1361,23 +1373,26 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>DUNS Number:</strong> <span class="bracketed">[Number]</span></li>
             <li><strong>Annual Revenue:</strong> <span class="bracketed">$ 0</span> (3-year average)</li>
         </ul>
+        </div>
 
-        <h3>Relevant Experience</h3>
+        <div><h3>Relevant Experience</h3>
         <ul>
             <li>Total Contract Furniture Projects: <span class="bracketed">[X]</span> projects</li>
             <li>Combined Project Value: <span class="bracketed">$[X]</span> million</li>
             <li>Average Project Completion Time: <span class="bracketed">[X]</span>% on-time delivery rate</li>
             <li>Client Satisfaction Rate: <span class="bracketed">[X]</span>%</li>
         </ul>
+        </div>
 
-        <h3>Authorized Manufacturer Relationships</h3>
+        <div><h3>Authorized Manufacturer Relationships</h3>
         <ul>
             <li>Manufacturer 1 - Authorized Dealer since <span class="bracketed">[Year]</span></li>
             <li>Manufacturer 2 - Authorized Dealer since <span class="bracketed">[Year]</span></li>
             <li>Manufacturer 3 - Authorized Dealer since <span class="bracketed">[Year]</span></li>
         </ul>
+        </div>
 
-        <h3>Key Personnel</h3>
+        <div><h3>Key Personnel</h3>
         <h4>Project Manager: <span class="bracketed">[Name, Credentials]</span></h4>
         <ul>
             <li><span class="bracketed">[X]</span> years contract furniture experience</li>
@@ -1396,14 +1411,16 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><span class="bracketed">[X]</span> years QA experience</li>
             <li><span class="bracketed">[Relevant qualifications]</span></li>
         </ul>
+        </div>
 
-        <h3>Financial Capacity</h3>
+        <div><h3>Financial Capacity</h3>
         <ul>
             <li><strong>Bonding Capacity:</strong> <span class="bracketed">$ 0</span></li>
             <li><strong>Credit Rating:</strong> <span class="bracketed">[Rating]</span></li>
             <li><strong>Bank References:</strong> <span class="bracketed">[Bank Name, Contact]</span></li>
             <li><strong>Insurance Coverage:</strong> Details per Section 11</li>
         </ul>
+        </div>
     </div>
 
     <div class="section">
@@ -1461,7 +1478,7 @@ def render_proposal(progress: dict,today,basic) -> str:
         </table>
         {% endfor %}
 
-        <h3>4.2 Additional Services</h3>
+        <div><h3>4.2 Additional Services</h3>
         <table class="pricing-table">
             <tr>
                 <th>Service Description</th>
@@ -1488,8 +1505,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td><span class="bracketed">$ 0</span></td>
             </tr>
         </table>
+        </div>
 
-        <h3>4.3 Optional Services (As Requested)</h3>
+        <div><h3>4.3 Optional Services (As Requested)</h3>
         <table class="pricing-table">
             <tr>
                 <th>Service Description</th>
@@ -1508,8 +1526,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td><span class="bracketed">$ 0</span></td>
             </tr>
         </table>
+        </div>
 
-        <h3>4.4 Project Total Summary</h3>
+        <div><h3>4.4 Project Total Summary</h3>
         <table class="pricing-table">
             <tr>
                 <th>Component</th>
@@ -1532,9 +1551,10 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <td><span class="bracketed">$ 0</span></td>
             </tr>
         </table>
+        </div>
         <p><strong>Note:</strong> IOM is tax-exempt - no sales tax applied</p>
 
-        <h3>4.5 Payment Terms</h3>
+        <div><h3>4.5 Payment Terms</h3>
         <ul>
             <li><strong>Terms:</strong> Net 30 days from delivery and acceptance</li>
             <li><strong>Progress Payments:</strong> <span class="bracketed">[If applicable]</span></li>
@@ -1542,12 +1562,13 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>Currency:</strong> USD</li>
             <li><strong>Early Payment Discount:</strong> 2% if paid within 10 days</li>
         </ul>
+        </div>
     </div>
 
     <div class="section">
         <h2>5. PROJECT MANAGEMENT & TIMELINE</h2>
 
-        <h3>5.1 Project Timeline</h3>
+        <div><h3>5.1 Project Timeline</h3>
         <p><strong>Phase 1:</strong> Order Processing & Manufacturing</p>
         <p><strong>Phase 2:</strong> Delivery & Installation</p>
 
@@ -1561,8 +1582,9 @@ def render_proposal(progress: dict,today,basic) -> str:
         </ul>
 
         <p><strong>Final Completion:</strong> September 30, 2025 (1 day ahead of deadline)</p>
+        </div>
 
-        <h3>5.2 Critical Milestones</h3>
+        <div><h3>5.2 Critical Milestones</h3>
         <table class="milestone-table">
             <tr>
                 <th>Milestone</th>
@@ -1575,8 +1597,9 @@ def render_proposal(progress: dict,today,basic) -> str:
             </tr>
             {% endfor %}
         </table>
+        </div>
 
-        <h3>5.3 Risk Management</h3>
+        <div><h3>5.3 Risk Management</h3>
         <p><strong>Identified Risks and Mitigation:</strong></p>
         <ul>
             <li><strong>Manufacturing Delays:</strong> Built-in 1-week buffer in schedule</li>
@@ -1584,8 +1607,9 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>Installation Challenges:</strong> Pre-site survey and coordination meetings</li>
             <li><strong>Quality Issues:</strong> Comprehensive QC process at factory and delivery</li>
         </ul>
+        </div>
 
-        <h3>5.4 Project Communication</h3>
+        <div><h3>5.4 Project Communication</h3>
         <ul>
             <li><strong>Weekly Progress Reports:</strong> Every Friday via email</li>
             <li><strong>Milestone Updates:</strong> Real-time notifications for key events</li>
@@ -1593,29 +1617,30 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>Primary Contact:</strong> <span class="bracketed">[Project Manager Name, Phone, Email]</span>
             </li>
         </ul>
+        </div>
     </div>
 
     <div class="section">
         <h2>6. INSTALLATION PLAN</h2>
 
-        <h3>6.1 Pre-Installation Activities</h3>
-        <p><strong>Site Survey:</strong></p>
+        <div><h3>6.1 Pre-Installation Activities</h3>
+        <div><p><strong>Site Survey:</strong></p>
         <ul>
             <li>Verify dimensions and access routes</li>
             <li>Identify potential installation challenges</li>
             <li>Coordinate with facility management</li>
             <li>Document existing conditions</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Logistics Coordination:</strong></p>
+        <div><p><strong>Logistics Coordination:</strong></p>
         <ul>
             <li>Schedule delivery appointments (2-day advance notice)</li>
             <li>Arrange appropriate delivery vehicles</li>
             <li>Confirm installation crew and tools</li>
             <li>Obtain necessary facility permits</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>6.2 Installation Process</h3>
+        <div><h3>6.2 Installation Process</h3>
         <p><strong>Day 1: Dan Kinney Family Center</strong></p>
         <ul>
             <li><strong>Morning:</strong> Delivery and staging of all items</li>
@@ -1629,69 +1654,70 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>Afternoon:</strong> Chesterfield delivery and installation</li>
             <li><strong>Evening:</strong> Final quality inspection and cleanup</li>
         </ul>
+        </div>
 
-        <h3>6.3 Installation Team</h3>
-        <p><strong>Team Composition:</strong></p>
+        <div><h3>6.3 Installation Team</h3>
+        <div><p><strong>Team Composition:</strong></p>
         <ul>
             <li><strong>Installation Supervisor:</strong> <span class="bracketed">[Name, Credentials]</span></li>
             <li><strong>Lead Installers:</strong> <span class="bracketed">[Number]</span> certified technicians</li>
             <li><strong>Quality Inspector:</strong> <span class="bracketed">[Name, Experience]</span></li>
             <li><strong>Project Coordinator:</strong> On-site for duration</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Safety Protocols:</strong></p>
+        <div><p><strong>Safety Protocols:</strong></p>
         <ul>
             <li>All installers OSHA 30-hour certified</li>
             <li>Comprehensive PPE required</li>
             <li>Site safety meeting before starting</li>
             <li>Daily safety briefings</li>
-        </ul>
-        <h3>6.4 Quality Control During Installation</h3>
+        </ul></div></div>
+        <div><h3>6.4 Quality Control During Installation</h3>
         <ul>
             <li>Pre-installation inspection of all items</li>
             <li>Assembly verification at each step</li>
             <li>Final placement and alignment check</li>
             <li>Punch list creation and resolution</li>
             <li>Client walkthrough and approval</li>
-        </ul>
+        </ul></div>
     </div>
     <div class="section">
         <h2>7. WARRANTY & SERVICE</h2>
-        <h3>7.1 Comprehensive Warranty Coverage</h3>
-        <p><strong>Furniture Warranty Terms:</strong></p>
+        <div><h3>7.1 Comprehensive Warranty Coverage</h3>
+        <div><p><strong>Furniture Warranty Terms:</strong></p>
         <ul>
             <li><strong>Duration:</strong> 10 years minimum (exceeds RFQ requirement)</li>
             <li><strong>Coverage:</strong> Parts, labor, and travel included</li>
             <li><strong>Usage Rating:</strong> 40+ hours per week commercial use</li>
             <li><strong>Response Time:</strong> 48-hour response (exceeds 48-72 requirement)</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Specific Warranty by Item Type:</strong></p>
+        <div><p><strong>Specific Warranty by Item Type:</strong></p>
         <ul>
             <li><strong>Chairs:</strong> 10 years comprehensive, 5 years fabric</li>
             <li><strong>Tables:</strong> 10 years structure, 5 years surface</li>
             <li><strong>Storage:</strong> 10 years comprehensive including hardware</li>
             <li><strong>Rockers:</strong> 10 years frame, 3 years fabric/cushions</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>7.2 Local Service Support</h3>
-        <p><strong>Service Team:</strong></p>
+        <div><h3>7.2 Local Service Support</h3>
+        <div><p><strong>Service Team:</strong></p>
         <ul>
             <li><strong>Service Manager:</strong> <span class="bracketed">[Name, Contact]</span></li>
             <li><strong>Field Technicians:</strong> <span class="bracketed">[Number]</span> certified locally</li>
             <li><strong>Service Territory:</strong> 100-mile radius of project</li>
             <li><strong>Parts Inventory:</strong> Local stock maintained</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Service Commitments:</strong></p>
+        <div><p><strong>Service Commitments:</strong></p>
         <ul>
             <li><strong>Emergency Response:</strong> 24 hours</li>
             <li><strong>Standard Service:</strong> 48 hours (meets requirement)</li>
             <li><strong>Routine Maintenance:</strong> Scheduled within 1 week</li>
             <li><strong>Warranty Claims:</strong> Same-day processing</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>7.3 Warranty Documentation</h3>
+        <div><h3>7.3 Warranty Documentation</h3>
         <p><strong>Provided at Project Completion:</strong></p>
         <ul>
             <li>Individual item warranty certificates</li>
@@ -1699,132 +1725,132 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li>Care and maintenance instructions</li>
             <li>Warranty registration confirmation</li>
             <li>Local service contact information</li>
-        </ul>
+        </ul></div>
 
-        <h3>7.4 Post-Installation Support</h3>
+        <div><h3>7.4 Post-Installation Support</h3>
         <ul>
             <li><strong>30-Day Follow-up:</strong> Comprehensive project review</li>
             <li><strong>90-Day Check:</strong> Usage assessment and adjustment</li>
             <li><strong>Annual Inspections:</strong> Preventive maintenance available</li>
             <li><strong>Training:</strong> End-user furniture care and adjustment</li>
-        </ul>
+        </ul></div>
     </div>
     <div class="section">
         <h2>8. QUALITY ASSURANCE</h2>
-        <h3>8.1 Quality Control Process</h3>
-        <p><strong>Factory Quality Control:</strong></p>
+        <div><h3>8.1 Quality Control Process</h3>
+        <div><p><strong>Factory Quality Control:</strong></p>
         <ul>
             <li>Incoming material inspection</li>
             <li>In-process manufacturing checks</li>
             <li>Final assembly verification</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Pre-Delivery Inspection:</strong></p>
+        <div><p><strong>Pre-Delivery Inspection:</strong></p>
         <ul>
             <li>Pre-shipment quality review</li>
             <li>Complete item-by-item inspection</li>
             <li>Packaging and protection verification</li>
             <li>Documentation and certification</li>
             <li>Damage-free delivery guarantee</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Installation Quality Control:</strong></p>
+        <div><p><strong>Installation Quality Control:</strong></p>
         <ul>
             <li>Delivery condition assessment</li>
             <li>Proper assembly verification</li>
             <li>Placement and alignment checks</li>
             <li>Final quality walkthrough</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>8.2 Quality Standards</h3>
-        <p><strong>Manufacturing Standards:</strong></p>
+        <div><h3>8.2 Quality Standards</h3>
+        <div><p><strong>Manufacturing Standards:</strong></p>
         <ul>
             <li>BIFMA compliance for all items</li>
             <li>Contract-grade construction requirements</li>
             <li>Specified dimensional tolerances</li>
             <li>Finish quality standards</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Installation Standards:</strong></p>
+        <div><p><strong>Installation Standards:</strong></p>
         <ul>
             <li>Level, plumb, and square installation</li>
             <li>Proper component alignment</li>
             <li>Secure fastening and stability</li>
             <li>Clean and complete presentation</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>8.3 Quality Assurance Team</h3>
+        <div><h3>8.3 Quality Assurance Team</h3>
         <ul>
             <li><strong>QA Manager:</strong> <span class="bracketed">[Name, Qualifications]</span></li>
             <li><strong>Factory Inspector:</strong> <span class="bracketed">[Name, Experience]</span></li>
             <li><strong>Installation Inspector:</strong> <span class="bracketed">[Name, Credentials]</span></li>
             <li><strong>Client Liaison:</strong> <span class="bracketed">[Name, Contact Information]</span></li>
-        </ul>
+        </ul></div>
 
-        <h3>8.4 Continuous Improvement</h3>
+        <div><h3>8.4 Continuous Improvement</h3>
         <ul>
             <li>Client feedback integration</li>
             <li>Process improvement documentation</li>
             <li>Best practices sharing</li>
             <li>Quality metrics tracking</li>
-        </ul>
+        </ul></div>
     </div>
     <div class="section">
         <h2>9. SUSTAINABILITY COMMITMENT</h2>
-        <h3>9.1 Environmental Responsibility</h3>
-        <p><strong>Manufacturing Partners:</strong> All manufacturers demonstrate environmental stewardship through:</p>
+        <div><h3>9.1 Environmental Responsibility</h3>
+        <div><p><strong>Manufacturing Partners:</strong> All manufacturers demonstrate environmental stewardship through:</p>
         <ul>
             <li>ISO 14001 environmental management certification</li>
             <li>Sustainable material sourcing programs</li>
             <li>Waste reduction and recycling initiatives</li>
             <li>Energy-efficient manufacturing processes</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Product Sustainability:</strong></p>
+        <div><p><strong>Product Sustainability:</strong></p>
         <ul>
             <li>GREENGUARD Gold certification available</li>
             <li>Low-emission materials and finishes</li>
             <li>Recyclable content in products</li>
             <li>End-of-life recycling programs</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>9.2 Sustainable Practices</h3>
-        <p><strong>Packaging and Delivery:</strong></p>
+        <div><h3>9.2 Sustainable Practices</h3>
+        <div><p><strong>Packaging and Delivery:</strong></p>
         <ul>
             <li>Minimal packaging materials</li>
             <li>Recyclable packaging components</li>
             <li>Efficient delivery routing</li>
             <li>Packaging material removal and recycling</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Installation Process:</strong></p>
+        <div><p><strong>Installation Process:</strong></p>
         <ul>
             <li>Waste minimization during installation</li>
             <li>Proper disposal of installation materials</li>
             <li>Energy-efficient installation practices</li>
             <li>Local sourcing when possible</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>9.3 Long-Term Sustainability</h3>
-        <p><strong>Product Longevity:</strong></p>
+        <div><h3>9.3 Long-Term Sustainability</h3>
+        <div><p><strong>Product Longevity:</strong></p>
         <ul>
             <li>Durable construction for extended service life</li>
             <li>Repairable and maintainable designs</li>
             <li>Timeless styling to avoid premature replacement</li>
-        </ul>
+        </ul></div>
 
-        <p><strong>Service Sustainability:</strong></p>
+        <div><p><strong>Service Sustainability:</strong></p>
         <ul>
             <li>Local service reduces travel impact</li>
             <li>Preventive maintenance extends product life</li>
             <li>Repair-first approach reduces waste</li>
-        </ul>
+        </ul></div></div>
     </div>
     <div class="section">
         <h2>10. REFERENCES & EXPERIENCE</h2>
-        <h3>10.1 Similar Project Experience</h3>
+        <div><h3>10.1 Similar Project Experience</h3>
 
-        <h4>Project 1: Educational Institution Furniture</h4>
+        <div><h4>Project 1: Educational Institution Furniture</h4>
         <ul>
             <li><strong>Client:</strong> <span class="bracketed">[Institution Name]</span></li>
             <li><strong>Value:</strong> <span class="bracketed">$ 0</span></li>
@@ -1833,9 +1859,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                 locations</li>
             <li><strong>Contact:</strong> <span class="bracketed">[Name, Title, Phone, Email]</span></li>
             <li><strong>Results:</strong> Completed 1 week early, 100% client satisfaction</li>
-        </ul>
+        </ul></div>
 
-        <h4>Project 2: Government Facility Furniture</h4>
+        <div><h4>Project 2: Government Facility Furniture</h4>
         <ul>
             <li><strong>Client:</strong> <span class="bracketed">[Agency Name]</span></li>
             <li><strong>Value:</strong> <span class="bracketed">$ 0</span></li>
@@ -1844,9 +1870,9 @@ def render_proposal(progress: dict,today,basic) -> str:
                 furniture</li>
             <li><strong>Contact:</strong> <span class="bracketed">[Name, Title, Phone, Email]</span></li>
             <li><strong>Results:</strong> Zero punch list items, exceeded quality expectations</li>
-        </ul>
+        </ul></div>
 
-        <h4>Project 3: Healthcare Facility Furniture</h4>
+        <div><h4>Project 3: Healthcare Facility Furniture</h4>
         <ul>
             <li><strong>Client:</strong> <span class="bracketed">[Facility Name]</span></li>
             <li><strong>Value:</strong> <span class="bracketed">$ 0</span></li>
@@ -1854,9 +1880,9 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li><strong>Scope:</strong> <span class="bracketed">[X]</span> items with strict timeline requirements</li>
             <li><strong>Contact:</strong> <span class="bracketed">[Name, Title, Phone, Email]</span></li>
             <li><strong>Results:</strong> Met aggressive deadline, comprehensive warranty service</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>10.2 Client References</h3>
+        <div><h3>10.2 Client References</h3>
 
         <div class="contact-info">
             <h4>Reference 1</h4>
@@ -1889,139 +1915,139 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <strong>Project Value:</strong> <span class="bracketed">$ 0</span> | <strong>Completion:</strong>
                 <span class="bracketed">[Date]</span>
             </p>
-        </div>
+        </div></div>
 
-        <h3>10.3 Performance Metrics</h3>
+        <div><h3>10.3 Performance Metrics</h3>
         <ul>
             <li><strong>On-Time Delivery Rate:</strong> <span class="bracketed">[X]</span>% (last 3 years)</li>
             <li><strong>Quality Satisfaction Score:</strong> <span class="bracketed">[X]</span>/10 average</li>
             <li><strong>Repeat Client Rate:</strong> <span class="bracketed">[X]</span>%</li>
             <li><strong>Warranty Claim Rate:</strong> Less than <span class="bracketed">[X]</span>%</li>
             <li><strong>Safety Record:</strong> Zero incidents (last 5 years)</li>
-        </ul>
+        </ul></div>
     </div>
     <div class="section">
         <h2>11. INSURANCE & COMPLIANCE</h2>
         <h3>11.1 Insurance Coverage</h3>
 
-        <h4>Current Insurance Policies:</h4>
+        <div><h4>Current Insurance Policies:</h4>
 
-        <h5>General Liability:</h5>
+        <div><h5>General Liability:</h5>
         <ul>
             <li><strong>Coverage:</strong> $2,000,000 per occurrence</li>
             <li><strong>Aggregate:</strong> $4,000,000 annual</li>
             <li><strong>Carrier:</strong> <span class="bracketed">[Insurance Company]</span></li>
             <li><strong>Policy #:</strong> <span class="bracketed">[Number]</span></li>
             <li><strong>Expiration:</strong> <span class="bracketed">[Date]</span></li>
-        </ul>
+        </ul></div>
 
-        <h5>Workers' Compensation:</h5>
+        <div><h5>Workers' Compensation:</h5>
         <ul>
             <li><strong>Coverage:</strong> As required by state law</li>
             <li><strong>Employer Liability:</strong> $1,000,000</li>
             <li><strong>Carrier:</strong> <span class="bracketed">[Insurance Company]</span></li>
             <li><strong>Policy #:</strong> <span class="bracketed">[Number]</span></li>
-        </ul>
+        </ul></div>
 
-        <h5>Commercial Auto:</h5>
+        <div><h5>Commercial Auto:</h5>
         <ul>
             <li><strong>Coverage:</strong> $1,000,000 combined single limit</li>
             <li><strong>Carrier:</strong> <span class="bracketed">[Insurance Company]</span></li>
             <li><strong>Policy #:</strong> <span class="bracketed">[Number]</span></li>
-        </ul>
+        </ul></div>
 
-        <h5>Property Coverage:</h5>
+        <div><h5>Property Coverage:</h5>
         <ul>
             <li><strong>Coverage:</strong> Full replacement value during project</li>
             <li><strong>Transit Coverage:</strong> Door-to-door protection</li>
             <li><strong>Installation Coverage:</strong> On-site protection</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>11.2 Licensing & Certifications</h3>
+        <div><h3>11.2 Licensing & Certifications</h3>
 
-        <h4>Business Licenses:</h4>
+        <div><h4>Business Licenses:</h4>
         <ul>
             <li><strong>State Business License:</strong> #<span class="bracketed">[Number]</span>, Expires <span
                     class="bracketed">[Date]</span></li>
             <li><strong>Federal Tax ID:</strong> <span class="bracketed">[EIN]</span></li>
             <li><strong>Professional Certifications:</strong> <span class="bracketed">[List relevant
                     certifications]</span></li>
-        </ul>
+        </ul></div>
 
-        <h4>Safety Certifications:</h4>
+        <div><h4>Safety Certifications:</h4>
         <ul>
             <li>OSHA 30-Hour Construction Safety</li>
             <li>Manufacturer Installation Certifications</li>
             <li>Safety Training Documentation</li>
-        </ul>
+        </ul></div></div>
 
-        <h3>11.3 Compliance Commitments</h3>
+        <div><h3>11.3 Compliance Commitments</h3>
 
-        <h4>Facility Compliance:</h4>
+        <div><h4>Facility Compliance:</h4>
         <ul>
             <li>Full adherence to IOM facility security procedures</li>
             <li>Background checks for personnel if required</li>
             <li>Site safety protocol compliance</li>
             <li>Environmental protection measures</li>
-        </ul>
+        </ul></div>
 
-        <h4>Quality Compliance:</h4>
+        <div><h4>Quality Compliance:</h4>
         <ul>
             <li>All products meet specified standards</li>
             <li>Installation per manufacturer requirements</li>
             <li>Code compliance verification</li>
             <li>Final inspection and approval</li>
-        </ul>
+        </ul></div></div>
     </div>
     <div class="section">
-        <h2>12. APPENDICES</h2>
-        <h3>Appendix A: Required Documentation</h3>
+        <div><h2>12. APPENDICES</h2>
+        <div><h3>Appendix A: Required Documentation</h3>
         <ul>
             <li>Business Registration Certificate</li>
             <li>Insurance Certificates (all policies)</li>
             <li>Financial Statements (last 3 years)</li>
             <li>Manufacturer Authorization Letters</li>
             <li>Professional Licenses and Certifications</li>
-        </ul>
+        </ul></div>
 
-        <h3>Appendix B: Technical Specifications</h3>
+        <div><h3>Appendix B: Technical Specifications</h3>
         <ul>
             <li>Complete Product Specification Sheets (all 87 items)</li>
             <li>Manufacturer Technical Data</li>
             <li>Installation Instructions</li>
             <li>Care and Maintenance Guidelines</li>
             <li>Warranty Terms and Conditions</li>
-        </ul>
+        </ul></div>
 
-        <h3>Appendix C: Project Documentation</h3>
+        <div><h3>Appendix C: Project Documentation</h3>
         <ul>
             <li>Sample Timeline and Milestone Charts</li>
             <li>Quality Control Checklists</li>
             <li>Safety Procedures and Protocols</li>
             <li>Installation Process Documentation</li>
-        </ul>
+        </ul></div>
 
-        <h3>Appendix D: Company Information</h3>
+        <div><h3>Appendix D: Company Information</h3>
         <ul>
             <li>Organizational Chart</li>
             <li>Key Personnel Resumes</li>
             <li>Company Brochure and Capabilities</li>
             <li>Awards and Recognition</li>
             <li>Client Testimonials</li>
-        </ul>
+        </ul></div>
 
-        <h3>Appendix E: Visual Materials</h3>
+        <div><h3>Appendix E: Visual Materials</h3>
         <ul>
             <li>Product Photography (proposed items)</li>
             <li>Installation Process Photos (from similar projects)</li>
             <li>Completed Project Photos</li>
             <li>3D Renderings (if applicable)</li>
-        </ul>
+        </ul></div></div>
     </div>
     <div class="section">
         <h2>PROPOSAL SUBMISSION CHECKLIST</h2>
         <div class="checklist">
-            <h3>Required for Submission:</h3>
+            <div><h3>Required for Submission:</h3>
             <ul>
                 <li>Completed Cover Page with authorized signature</li>
                 <li>Executive Summary addressing all key requirements</li>
@@ -2036,21 +2062,21 @@ def render_proposal(progress: dict,today,basic) -> str:
                 <li>Client references with contact information</li>
                 <li>Insurance certificates and compliance documentation</li>
                 <li>All required appendices and supporting materials</li>
-            </ul>
+            </ul></div>
 
-            <h3>Submission Details:</h3>
+            <div><h3>Submission Details:</h3>
             <ul>
                 <li><strong>Format:</strong> PDF, maximum 10MB per file</li>
                 <li><strong>Email:</strong> procurement@iom.int</li>
                 <li><strong>Subject:</strong> "RFQ Response - {{basic['Client Information']['RFP Number']}} </li>
                 <li><strong>Deadline:</strong> {{basic["Quotation Details"]["Due Date"]}}</li>
                 <li><strong>Confirmation:</strong> Request delivery receipt confirmation</li>
-            </ul>
+            </ul></div>
         </div>
     </div>
     <div class="compliance-box">
         <h2>DECLARATION OF COMPLIANCE</h2>
-        <p>By submitting this proposal, <span class="bracketed">{{basic["Dealer Information"]["company"]}}</span> certifies that:</p>
+        <div><p>By submitting this proposal, <span class="bracketed">{{basic["Dealer Information"]["company"]}}</span> certifies that:</p>
         <ul>
             <li>We have read and understand all RFQ requirements</li>
             <li>We can meet the {{basic['Quotation Details']['Due Date']}} delivery deadline</li>
@@ -2059,7 +2085,7 @@ def render_proposal(progress: dict,today,basic) -> str:
             <li>Our pricing is firm for the entire project duration (120 days)</li>
             <li>We have the financial and operational capacity to complete this project</li>
             <li>All information provided is accurate and complete</li>
-        </ul>
+        </ul></div>
     </div>
     <div class="signature-section">
         <h3>Authorized Signature:</h3>
