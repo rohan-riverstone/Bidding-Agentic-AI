@@ -233,7 +233,6 @@ def locate_section_block(prompt: str, soup: BeautifulSoup, fuzz_threshold: int =
 
     return None
 
-
 def extract_sections(soup):
     sections = []
     for heading in soup.find_all(["h1","h2","h3","h4","strong","b"]):
@@ -252,7 +251,7 @@ def make_changes_in_proposal(rfp_id: str, user_queries: list) -> str:
     """
     For each query: locate the whole container block (div/section) for the section named
     in the prompt, send that block + prompt to LLM, get updated block back, replace it
-    in the original HTML, and print the final HTML at the end.
+    in the original HTML, and print the final HTML at the end process.
     """
     # load current proposal HTML from logs (same as your original)
     result = log._load_logs()[rfp_id]["tools"]["proposal"]["result"]
