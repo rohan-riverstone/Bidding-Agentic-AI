@@ -124,9 +124,21 @@ class data_logger:
     
     def log_email(self, rfp_id: str, result: dict):
         logs = self._load_logs()
-        logs = self._update_tool(logs, rfp_id, "email", result)
+        if "rfq_email" in result:
+        # Ensure email structure exists
+            logs.setdefault(rfp_id, {}).setdefault("tools", {}).setdefault("email", {}).setdefault("result", {})
+
+            for email_type, entries in result.items():  # e.g. "rfq_email"
+                logs[rfp_id]["tools"]["email"]["result"].setdefault(email_type, {})
+
+                for identifier, data in entries.items():  # e.g. "BLD-Q-2025-440"
+                    logs[rfp_id]["tools"]["email"]["result"][email_type].setdefault(identifier, {})
+                    logs[rfp_id]["tools"]["email"]["result"][email_type][identifier].update(data)
+        else:
+            logs[rfp_id]["tools"]["email"]["result"]["submission_email"] = result
+
         self._save_logs(logs)
-        self.logger.info(f"Email logged for RFP {rfp_id}")
+        self.logger.info(f"📧 Email logged for RFP {rfp_id} → {list(result.keys())}")
         return rfp_id
 
     def get_rfp_data(self, rfp_id: str) -> dict:

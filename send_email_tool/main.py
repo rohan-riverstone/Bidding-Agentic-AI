@@ -11,6 +11,7 @@ from PyPDF2 import PdfMerger
 from concurrent.futures import ProcessPoolExecutor
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+import re
 
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -172,6 +173,10 @@ def prepare_email(to_email, subject, message, pdf_bytes=None, html_pdf_bytes=Non
 
     return msg
 
+def extract_keywords(text):
+    # simple: words > 3 letters (you can replace with NLP)
+    return [w.lower() for w in re.findall(r"\b\w{4,}\b", text)]
+
 # ------------------------- MCP Tools -------------------------
 
 @mcp.tool(description="Submit final quotation synchronously (single email with merged PDFs)")
@@ -196,7 +201,7 @@ async def Submit_the_final_quotation(rfp_id: str, email_address: str):
                     for codes in logs_data[rfp_id]["tools"]["matching"]["result"]["availability"][enterprise]
                 ]
                 
-                merged_cutsheet_bytes = await get_cutsheet_optimized(cutsheet, products)
+                merged_cutsheet_bytes = None # await get_cutsheet_optimized(cutsheet, products)
                 if merged_cutsheet_bytes:
                     cutsheet_pdfs.append(merged_cutsheet_bytes)
 
@@ -255,7 +260,7 @@ Sincerely,
 
         # ====== Build & Send Email ======
         email_msg = prepare_email(
-            to_email="rohan@riverstonetech.in",
+            to_email="rohan@riverstonetech.in", #email_address,
             subject=f"{last_json_data['Client Information']['RFP Number']} - Furniture Quote Submission",
             message=message,
             pdf_bytes=merged_cutsheet,
@@ -324,8 +329,9 @@ Best regards,
 {contacts_info["name"]}
 {contacts_info["post"]}
 """
+                to_email = api.get_enterprise_list([enterprise])['data']['getEnterpriseListing']['edges'][0]['node']['email']
                 email_msg = prepare_email(
-                    to_email='rohan@riverstonetech.in',
+                    to_email= "rohan@riverstonetech.in", #to_email,
                     subject=f"{json_data['Quotation Details']['Quotation ID']} - Request For Quotation - {json_data['Enterprise Information']['name']}",
                     message=message,
                     pdf_bytes=merged_pdf_bytes,
@@ -333,21 +339,23 @@ Best regards,
                 )
                 email_msgs.append(email_msg)
 
+                log.log_email(
+                    rfp_id=rfp_id,
+                    result={"rfq_email":{
+                        json_data['Quotation Details']['Quotation ID']:{
+                            "email_id": to_email,
+                            "keywords": extract_keywords(message) + extract_keywords(f"{json_data['Quotation Details']['Quotation ID']} - Request For Quotation - {json_data['Enterprise Information']['name']}")
+                        }}
+                    }
+                )
+
             except Exception as e:
                 errors.append(f"❌ Failed for {enterprise}: {str(e)}")
 
         if email_msgs:
             send_emails_smtp(email_msgs)
 
-        log.log_email(
-            rfp_id=rfp_id,
-            result={
-                "enterprise": enterprise_list,
-                "recipient": "email_address",
-                "subject": f"Request for quotation – {','.join(enterprise_list)}",
-                "status": "sent"
-            }
-        )
+        
 
         return {"sent": [msg["To"] for msg in email_msgs], "errors": errors}
 
@@ -357,13 +365,14 @@ Best regards,
 if __name__ == "__main__":
     print("✅ Starting MCP Server...")
     try:
-        mcp.run()
-        # print(asyncio.run(
-        #     Submit_the_final_quotation(
-        #         rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',
-        #         email_address='rohan@riverstonetech.in',
+        # mcp.run()
+        # print(asyncio.run(send_request_for_quotation_email_to_enterprise(rfp_id = '474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735')))
+        print(asyncio.run(
+            Submit_the_final_quotation(
+                rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',
+                email_address='rohan@riverstonetech.in',
                 
-        #     )
-        # ))
+            )
+        ))
     except Exception as e:
         print(f"❌ MCP Server failed: {str(e)}")
