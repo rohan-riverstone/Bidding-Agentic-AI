@@ -341,11 +341,7 @@ Best regards,
 
                 log.log_email(
                     rfp_id=rfp_id,
-                    result={"rfq_email":{
-                        json_data['Quotation Details']['Quotation ID']:{
-                            "email_id": to_email,
-                            "keywords": extract_keywords(message) + extract_keywords(f"{json_data['Quotation Details']['Quotation ID']} - Request For Quotation - {json_data['Enterprise Information']['name']}")
-                        }}
+                    result={"rfq_email": {to_email: f"{json_data['Quotation Details']['Quotation ID']}"}
                     }
                 )
 
@@ -355,8 +351,6 @@ Best regards,
         if email_msgs:
             send_emails_smtp(email_msgs)
 
-        
-
         return {"sent": [msg["To"] for msg in email_msgs], "errors": errors}
 
     except Exception as ex:
@@ -365,14 +359,14 @@ Best regards,
 if __name__ == "__main__":
     print("✅ Starting MCP Server...")
     try:
-        # mcp.run()
+        mcp.run()
         # print(asyncio.run(send_request_for_quotation_email_to_enterprise(rfp_id = '474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735')))
-        print(asyncio.run(
-            Submit_the_final_quotation(
-                rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',
-                email_address='rohan@riverstonetech.in',
+        # print(asyncio.run(
+        #     Submit_the_final_quotation(
+        #         rfp_id='474c5d7aafd4aa6da6ad0a948a98c615c8f20581593c64ff607aa000f4d02735',
+        #         email_address='rohan@riverstonetech.in',
                 
-            )
-        ))
+        #     )
+        # ))
     except Exception as e:
         print(f"❌ MCP Server failed: {str(e)}")

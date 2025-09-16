@@ -124,21 +124,22 @@ class data_logger:
     
     def log_email(self, rfp_id: str, result: dict):
         logs = self._load_logs()
+
+        # Ensure structure exists
+        logs.setdefault(rfp_id, {}).setdefault("tools", {}).setdefault("email", {}).setdefault("result", {})
+
+        # Expecting result in the form: {"rfq_email": {to_email: {quotation_id: rfp_id}}}
         if "rfq_email" in result:
-        # Ensure email structure exists
-            logs.setdefault(rfp_id, {}).setdefault("tools", {}).setdefault("email", {}).setdefault("result", {})
-
-            for email_type, entries in result.items():  # e.g. "rfq_email"
-                logs[rfp_id]["tools"]["email"]["result"].setdefault(email_type, {})
-
-                for identifier, data in entries.items():  # e.g. "BLD-Q-2025-440"
-                    logs[rfp_id]["tools"]["email"]["result"][email_type].setdefault(identifier, {})
-                    logs[rfp_id]["tools"]["email"]["result"][email_type][identifier].update(data)
+            rfq_email_data = result.get("rfq_email", {})
+            for to_email, quotations in rfq_email_data.items():
+                logs[rfp_id]["tools"]["email"]["result"].setdefault("rfq_email", {}).setdefault(to_email, {})
+                exist = list(logs[rfp_id]["tools"]["email"]["result"]["rfq_email"][to_email])
+                exist.append(quotations)
+                logs[rfp_id]["tools"]["email"]["result"]["rfq_email"][to_email] = exist
         else:
             logs[rfp_id]["tools"]["email"]["result"]["submission_email"] = result
-
         self._save_logs(logs)
-        self.logger.info(f"📧 Email logged for RFP {rfp_id} → {list(result.keys())}")
+        self.logger.info(f"📧 Email logged for RFP {rfp_id} → {list(rfq_email_data.keys())}")
         return rfp_id
 
     def get_rfp_data(self, rfp_id: str) -> dict:
